@@ -155,13 +155,14 @@ export default function Etudiants() {
 
       // b) Créer le snapshot de la liste visible
       const snapshot = filteredEtudiants.map(etudiant => ({
-        nom: etudiant.etudiants?.nom || '',
-        prenom: etudiant.etudiants?.prenom || '',
-        numero_etudiant: etudiant.etudiants?.numero_etudiant || '',
-        statut: etudiant.statut || '',
-        filiere: etudiant.etudiants?.filiere || '',
-        tranche: etudiant.tranches ? `Tranche ${etudiant.tranches.numero_tranche}` : '',
-        montant_total: etudiant.montant_total || 0
+        nom: etudiant.nom || '',
+        prenom: etudiant.prenom || '',
+        numero_etudiant: etudiant.numero_etudiant || '',
+        filiere: etudiant.filiere || '',
+        statut: etudiant.statuts_tranches?.[0]?.statut || 'Non configuré',
+        tranche: etudiant.statuts_tranches?.[0]?.tranches ? 
+          `Tranche ${etudiant.statuts_tranches[0].tranches.numero_tranche}` : '-',
+        montant_restant: etudiant.statuts_tranches?.[0]?.montant_restant || 0
       }))
 
       // c) Enregistrer dans Supabase

@@ -80,7 +80,7 @@ export default function GestionUtilisateurs({ session }) {
         performed_by: session?.user?.email
       })
 
-      setMessage('Invitation enregistrée — l\'utilisateur doit créer son compte sur uniki-web.vercel.app/login')
+      setMessage('✅ Email autorisé. nduwayobagi@gmail.com peut maintenant créer son compte sur uniki-web.vercel.app en cliquant sur "Créer mon compte".')
       setEmail('')
       setSelectedRole('scolarite')
       fetchUtilisateurs() // Rafraîchir la liste

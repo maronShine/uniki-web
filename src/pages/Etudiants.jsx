@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 import Navbar from '../components/Navbar'
 
 export default function Etudiants() {
+  const navigate = useNavigate()
   const [session, setSession] = useState(null)
   const [etudiants, setEtudiants] = useState([])
   const [filteredEtudiants, setFilteredEtudiants] = useState([])
@@ -27,24 +29,21 @@ export default function Etudiants() {
   const fetchEtudiants = async () => {
     try {
       const { data, error } = await supabase
-        .from('statuts_tranches')
+        .from('etudiants')
         .select(`
           *,
-          etudiants (
+          statuts_tranches (
             id,
-            nom,
-            prenom,
-            numero_etudiant,
-            filiere,
-            niveau
-          ),
-          tranches (
-            id,
-            numero_tranche,
-            montant_attendu
+            statut,
+            montant_restant,
+            tranches (
+              id,
+              numero_tranche,
+              montant_attendu
+            )
           )
         `)
-        .order('created_at', { ascending: false })
+        .order('nom', { ascending: true })
 
       console.log('data:', data)
       
@@ -67,10 +66,16 @@ export default function Etudiants() {
     // Filtrage par statut/tranche
     if (activeFilter !== 'Tous') {
       if (['Payé', 'Partiel', 'En attente'].includes(activeFilter)) {
-        filtered = filtered.filter(etudiant => etudiant.statut === activeFilter)
+        filtered = filtered.filter(etudiant => 
+          etudiant.statuts_tranches?.some(tranche => tranche.statut === activeFilter)
+        )
       } else if (['Tranche 1', 'Tranche 2', 'Tranche 3'].includes(activeFilter)) {
         const trancheNumber = activeFilter.split(' ')[1]
-        filtered = filtered.filter(etudiant => etudiant.tranches?.numero_tranche === parseInt(trancheNumber))
+        filtered = filtered.filter(etudiant => 
+          etudiant.statuts_tranches?.some(tranche => 
+            tranche.tranches?.numero_tranche === parseInt(trancheNumber)
+          )
+        )
       }
     }
 
@@ -78,9 +83,9 @@ export default function Etudiants() {
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(etudiant => {
-        const nom = etudiant.etudiants?.nom?.toLowerCase() || ''
-        const prenom = etudiant.etudiants?.prenom?.toLowerCase() || ''
-        const numeroEtudiant = etudiant.etudiants?.numero_etudiant?.toLowerCase() || ''
+        const nom = etudiant.nom?.toLowerCase() || ''
+        const prenom = etudiant.prenom?.toLowerCase() || ''
+        const numeroEtudiant = etudiant.numero_etudiant?.toLowerCase() || ''
         return nom.includes(term) || prenom.includes(term) || numeroEtudiant.includes(term)
       })
     }
@@ -88,7 +93,27 @@ export default function Etudiants() {
     setFilteredEtudiants(filtered)
   }
 
+  const handleEtudiantClick = (etudiantId) => {
+    navigate(`/etudiant/${etudiantId}`)
+  }
+
   const getStatusBadge = (statut) => {
+    if (!statut || statut === 'Non configuré') {
+      return (
+        <span style={{
+          backgroundColor: '#374151',
+          color: '#d1d5db',
+          padding: '4px 12px',
+          borderRadius: '16px',
+          fontSize: '12px',
+          fontWeight: '500',
+          display: 'inline-block'
+        }}>
+          Non configuré
+        </span>
+      )
+    }
+    
     const statusConfig = {
       'Payé': { bg: '#d1fae5', color: '#065f46', border: '#10b981' },
       'Partiel': { bg: '#fef3c7', color: '#92400e', border: '#f59e0b' },
@@ -101,7 +126,6 @@ export default function Etudiants() {
       <span style={{
         backgroundColor: config.bg,
         color: config.color,
-        border: `1px solid ${config.border}`,
         padding: '4px 12px',
         borderRadius: '16px',
         fontSize: '12px',
@@ -298,35 +322,49 @@ export default function Etudiants() {
                 {filteredEtudiants.map((etudiant, index) => (
                   <tr 
                     key={etudiant.id} 
-                    style={{ 
-                      backgroundColor: index % 2 === 0 ? '#1e293b' : '#252f3f',
+                    onClick={() => handleEtudiantClick(etudiant.id)}
+                    style={{
+                      borderBottom: '1px solid #334155',
+                      cursor: 'pointer',
                       transition: 'background-color 0.2s'
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#374151'}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = '#374151'
+                    }}
                     onMouseOut={(e) => {
-                      e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#1e293b' : '#252f3f'
+                      e.currentTarget.style.backgroundColor = 'transparent'
                     }}
                   >
                     <td style={{ padding: '16px', color: 'white', fontSize: '14px' }}>
-                      {etudiant.etudiants?.nom || '-'}
+                      {etudiant.nom || '-'}
                     </td>
                     <td style={{ padding: '16px', color: 'white', fontSize: '14px' }}>
-                      {etudiant.etudiants?.prenom || '-'}
+                      {etudiant.prenom || '-'}
                     </td>
                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                      {etudiant.etudiants?.numero_etudiant || '-'}
+                      {etudiant.numero_etudiant || '-'}
                     </td>
                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                      {etudiant.etudiants?.filiere || '-'}
+                      {etudiant.filiere || '-'}
                     </td>
                     <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                      {etudiant.tranches ? `Tranche ${etudiant.tranches.numero_tranche}` : '-'}
+                      {etudiant.statuts_tranches && etudiant.statuts_tranches.length > 0 
+                        ? `Tranche ${etudiant.statuts_tranches[0].tranches?.numero_tranche || 1}`
+                        : '-'
+                      }
                     </td>
                     <td style={{ padding: '16px', color: 'white', fontSize: '14px', fontWeight: '500' }}>
-                      ${etudiant.montant_total?.toLocaleString() || '0'}
+                      ${etudiant.statuts_tranches && etudiant.statuts_tranches.length > 0
+                        ? (etudiant.statuts_tranches[0].montant_restant || 0).toLocaleString()
+                        : '0'
+                      }
                     </td>
                     <td style={{ padding: '16px' }}>
-                      {getStatusBadge(etudiant.statut)}
+                      {getStatusBadge(
+                        etudiant.statuts_tranches && etudiant.statuts_tranches.length > 0
+                          ? etudiant.statuts_tranches[0].statut
+                          : 'Non configuré'
+                      )}
                     </td>
                   </tr>
                 ))}

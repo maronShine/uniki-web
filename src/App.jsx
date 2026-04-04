@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Etudiants from './pages/Etudiants'
 import Verify from './pages/Verify'
+import FicheEtudiant from './pages/FicheEtudiant'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -35,6 +36,7 @@ function App() {
         <Route path="/login" element={!session ? <Login /> : <Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={session ? <Dashboard session={session} /> : <Navigate to="/login" />} />
         <Route path="/etudiants" element={session ? <Etudiants session={session} /> : <Navigate to="/login" />} />
+        <Route path="/etudiant/:id" element={session ? <FicheEtudiant session={session} /> : <Navigate to="/login" />} />
         <Route path="/" element={<Navigate to={session ? "/dashboard" : "/login"} />} />
       </Routes>
     </BrowserRouter>

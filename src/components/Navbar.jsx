@@ -1,9 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useRole } from '../hooks/useRole'
 
 export default function Navbar({ session }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { role, loading: roleLoading } = useRole(session)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -54,12 +56,42 @@ export default function Navbar({ session }) {
           }}>
           Étudiants
         </span>
+        {/* Lien Utilisateurs visible uniquement pour les super_admins */}
+        {!roleLoading && role === 'super_admin' && (
+          <span
+            onClick={() => navigate('/utilisateurs')}
+            style={{
+              fontSize: '13px', cursor: 'pointer',
+              color: location.pathname === '/utilisateurs' ? '#0ea5e9' : '#94a3b8',
+              borderBottom: location.pathname === '/utilisateurs' ? '2px solid #0ea5e9' : 'none',
+              paddingBottom: '2px'
+            }}>
+            Utilisateurs
+          </span>
+        )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <span style={{ fontSize: '12px', color: '#94a3b8' }}>
           {session?.user?.email}
         </span>
+        {!roleLoading && role && (
+          <span style={{
+            backgroundColor: role === 'super_admin' ? '#dc2626' : 
+                           role === 'direction' ? '#7c3aed' :
+                           role === 'comptabilite' ? '#0891b2' : '#059669',
+            color: 'white',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '10px',
+            fontWeight: '500',
+            textTransform: 'uppercase'
+          }}>
+            {role === 'super_admin' ? 'Admin' : 
+             role === 'direction' ? 'Direction' :
+             role === 'comptabilite' ? 'Compta' : 'Scolarité'}
+          </span>
+        )}
         <button onClick={handleLogout} style={{
           fontSize: '12px', padding: '5px 12px',
           border: '0.5px solid #334155', borderRadius: '8px',

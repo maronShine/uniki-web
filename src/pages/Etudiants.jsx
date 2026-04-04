@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 import Navbar from '../components/Navbar'
 import { useWindowWidth } from '../hooks/useWindowWidth'
+import { logAction } from '../lib/audit'
 
 export default function Etudiants() {
   const navigate = useNavigate()
@@ -194,6 +195,19 @@ export default function Etudiants() {
         console.error('Error logging print:', logError)
         throw logError
       }
+
+      // Enregistrer l'action dans le journal d'audit
+      await logAction({
+        action: 'IMPRESSION_LISTE',
+        table_name: 'print_logs',
+        record_id: generatedPrintId,
+        new_value: { 
+          nombre_etudiants: filteredEtudiants.length, 
+          filtre: activeFilter,
+          recherche: searchTerm
+        },
+        performed_by: session?.user?.email
+      })
 
       // d) Déclencher l'impression après un court délai pour que le QR code s'affiche
       setTimeout(() => {

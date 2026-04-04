@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import Navbar from '../components/Navbar'
 import { useRole } from '../hooks/useRole'
 import { useWindowWidth } from '../hooks/useWindowWidth'
+import { logAction } from '../lib/audit'
 
 export default function GestionUtilisateurs({ session }) {
   const { role, loading: roleLoading } = useRole(session)
@@ -67,6 +68,17 @@ export default function GestionUtilisateurs({ session }) {
         })
 
       if (error) throw error
+
+      // Enregistrer l'action dans le journal d'audit
+      await logAction({
+        action: 'AJOUT_UTILISATEUR',
+        table_name: 'user_roles',
+        new_value: { 
+          email: email.trim(), 
+          role: selectedRole 
+        },
+        performed_by: session?.user?.email
+      })
 
       setMessage('Invitation enregistrée — l\'utilisateur doit créer son compte sur uniki-web.vercel.app/login')
       setEmail('')

@@ -76,6 +76,19 @@ export default function Navbar({ session }) {
               Utilisateurs
             </span>
           )}
+          {/* Lien Journal visible uniquement pour les super_admins */}
+          {!roleLoading && role === 'super_admin' && (
+            <span
+              onClick={() => navigate('/journal')}
+              style={{
+                fontSize: '13px', cursor: 'pointer',
+                color: location.pathname === '/journal' ? '#0ea5e9' : '#94a3b8',
+                borderBottom: location.pathname === '/journal' ? '2px solid #0ea5e9' : 'none',
+                paddingBottom: '2px'
+              }}>
+              Journal
+            </span>
+          )}
         </div>
       )}
 
@@ -170,6 +183,18 @@ export default function Navbar({ session }) {
                   padding: '8px 0'
                 }}>
                 Utilisateurs
+              </span>
+            )}
+            {/* Lien Journal visible uniquement pour les super_admins */}
+            {!roleLoading && role === 'super_admin' && (
+              <span
+                onClick={() => { navigate('/journal'); setMenuOpen(false) }}
+                style={{
+                  fontSize: '14px', cursor: 'pointer',
+                  color: location.pathname === '/journal' ? '#0ea5e9' : '#94a3b8',
+                  padding: '8px 0'
+                }}>
+                Journal
               </span>
             )}
             <div style={{ 

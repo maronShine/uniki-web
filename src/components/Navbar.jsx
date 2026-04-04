@@ -1,131 +1,70 @@
-import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Link, useLocation } from 'react-router-dom'
 
-export default function Navbar() {
-  const [user, setUser] = useState(null)
+export default function Navbar({ session }) {
+  const navigate = useNavigate()
   const location = useLocation()
-
-  useEffect(() => {
-    fetchUser()
-  }, [])
-
-  const fetchUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
-  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-  }
-
-  const isActivePath = (path) => {
-    return location.pathname === path
+    navigate('/login')
   }
 
   return (
-    <nav className="navbar" style={{
-      height: '52px',
+    <nav style={{
       backgroundColor: '#1e293b',
-      borderBottom: '1px solid #334155',
+      borderBottom: '0.5px solid #334155',
+      padding: '0 1.5rem',
+      height: '52px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 24px'
+      position: 'sticky',
+      top: 0,
+      zIndex: 100
     }}>
-      {/* Logo à gauche */}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{
-          width: '32px',
-          height: '32px',
-          backgroundColor: '#0ea5e9',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginRight: '12px'
-        }}>
-          <span style={{
-            color: 'white',
-            fontWeight: '700',
-            fontSize: '14px'
-          }}>UK</span>
-        </div>
-        <span style={{
-          color: 'white',
-          fontWeight: '600',
-          fontSize: '16px'
-        }}>UNIKI</span>
+          width: '32px', height: '32px', borderRadius: '8px',
+          backgroundColor: '#0ea5e9', display: 'flex',
+          alignItems: 'center', justifyContent: 'center',
+          fontSize: '12px', fontWeight: '600', color: '#fff'
+        }}>UK</div>
+        <span style={{ fontSize: '14px', fontWeight: '600', color: '#f1f5f9' }}>UNIKI</span>
       </div>
 
-      {/* Liens au centre */}
-      <div style={{ display: 'flex', gap: '32px' }}>
-        <Link
-          to="/dashboard"
+      <div style={{ display: 'flex', gap: '2rem' }}>
+        <span
+          onClick={() => navigate('/dashboard')}
           style={{
-            color: isActivePath('/dashboard') ? '#0ea5e9' : '#94a3b8',
-            textDecoration: 'none',
-            fontSize: '14px',
-            fontWeight: '500',
-            borderBottom: isActivePath('/dashboard') ? '2px solid #0ea5e9' : 'none',
-            paddingBottom: '2px',
-            transition: 'color 0.2s'
-          }}
-          onMouseOver={(e) => {
-            if (!isActivePath('/dashboard')) e.target.style.color = 'white'
-          }}
-          onMouseOut={(e) => {
-            if (!isActivePath('/dashboard')) e.target.style.color = '#94a3b8'
-          }}
-        >
+            fontSize: '13px', cursor: 'pointer',
+            color: location.pathname === '/dashboard' ? '#0ea5e9' : '#94a3b8',
+            borderBottom: location.pathname === '/dashboard' ? '2px solid #0ea5e9' : 'none',
+            paddingBottom: '2px'
+          }}>
           Tableau de bord
-        </Link>
-        <Link
-          to="/etudiants"
+        </span>
+        <span
+          onClick={() => navigate('/etudiants')}
           style={{
-            color: isActivePath('/etudiants') ? '#0ea5e9' : '#94a3b8',
-            textDecoration: 'none',
-            fontSize: '14px',
-            fontWeight: '500',
-            borderBottom: isActivePath('/etudiants') ? '2px solid #0ea5e9' : 'none',
-            paddingBottom: '2px',
-            transition: 'color 0.2s'
-          }}
-          onMouseOver={(e) => {
-            if (!isActivePath('/etudiants')) e.target.style.color = 'white'
-          }}
-          onMouseOut={(e) => {
-            if (!isActivePath('/etudiants')) e.target.style.color = '#94a3b8'
-          }}
-        >
+            fontSize: '13px', cursor: 'pointer',
+            color: location.pathname === '/etudiants' ? '#0ea5e9' : '#94a3b8',
+            borderBottom: location.pathname === '/etudiants' ? '2px solid #0ea5e9' : 'none',
+            paddingBottom: '2px'
+          }}>
           Étudiants
-        </Link>
+        </span>
       </div>
 
-      {/* Email utilisateur et déconnexion à droite */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <span style={{
-          color: '#94a3b8',
-          fontSize: '14px'
-        }}>
-          {user?.email}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+          {session?.user?.email}
         </span>
-        <button
-          onClick={handleLogout}
-          style={{
-            backgroundColor: '#374151',
-            color: 'white',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
-          onMouseOut={(e) => e.target.style.backgroundColor = '#374151'}
-        >
+        <button onClick={handleLogout} style={{
+          fontSize: '12px', padding: '5px 12px',
+          border: '0.5px solid #334155', borderRadius: '8px',
+          backgroundColor: 'transparent', color: '#94a3b8', cursor: 'pointer'
+        }}>
           Déconnexion
         </button>
       </div>

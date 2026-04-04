@@ -33,8 +33,8 @@ function App() {
       <Routes>
         <Route path="/verify/:printId" element={<Verify />} />
         <Route path="/login" element={!session ? <Login /> : <Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={session ? <Dashboard /> : <Navigate to="/login" />} />
-        <Route path="/etudiants" element={session ? <Etudiants /> : <Navigate to="/login" />} />
+        <Route path="/dashboard" element={session ? <Dashboard session={session} /> : <Navigate to="/login" />} />
+        <Route path="/etudiants" element={session ? <Etudiants session={session} /> : <Navigate to="/login" />} />
         <Route path="/" element={<Navigate to={session ? "/dashboard" : "/login"} />} />
       </Routes>
     </BrowserRouter>

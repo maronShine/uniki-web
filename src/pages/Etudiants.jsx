@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
+import Navbar from '../components/Navbar'
 
 export default function Etudiants() {
+  const [session, setSession] = useState(null)
   const [etudiants, setEtudiants] = useState([])
   const [filteredEtudiants, setFilteredEtudiants] = useState([])
   const [loading, setLoading] = useState(true)
@@ -11,20 +13,15 @@ export default function Etudiants() {
   const [activeFilter, setActiveFilter] = useState('Tous')
   const [printId, setPrintId] = useState('')
   const [isPrinting, setIsPrinting] = useState(false)
-  const [user, setUser] = useState(null)
 
   useEffect(() => {
+    fetchSession()
     fetchEtudiants()
-    fetchUser()
   }, [])
 
-  useEffect(() => {
-    filterEtudiants()
-  }, [etudiants, searchTerm, activeFilter])
-
-  const fetchUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
+  const fetchSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    setSession(session)
   }
 
   const fetchEtudiants = async () => {
@@ -117,7 +114,7 @@ export default function Etudiants() {
   }
 
   const handlePrint = async () => {
-    if (!user) {
+    if (!session) {
       setError('Vous devez être connecté pour imprimer')
       return
     }
@@ -148,7 +145,7 @@ export default function Etudiants() {
         .from('print_logs')
         .insert({
           id: generatedPrintId,
-          printed_by: user.email,
+          printed_by: session.user?.email,
           filtre_statut: ['Payé', 'Partiel', 'En attente'].includes(activeFilter) ? activeFilter : null,
           filtre_tranche: ['Tranche 1', 'Tranche 2', 'Tranche 3'].includes(activeFilter) ? activeFilter : null,
           recherche: searchTerm || null,
@@ -191,8 +188,9 @@ export default function Etudiants() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', padding: '20px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
+      <Navbar session={session} />
+      <div style={{ padding: '1.5rem' }}>
         <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '600', marginBottom: '32px' }}>Liste des étudiants</h1>
         
         {/* Carte de recherche et filtres */}

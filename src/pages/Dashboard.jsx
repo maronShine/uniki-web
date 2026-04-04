@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import Navbar from '../components/Navbar'
 
 export default function Dashboard() {
+  const [session, setSession] = useState(null)
   const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    fetchSession()
     fetchDashboardData()
   }, [])
+
+  const fetchSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    setSession(session)
+  }
 
   const fetchDashboardData = async () => {
     try {
@@ -55,8 +63,9 @@ export default function Dashboard() {
   const pourcentageNonComplets = totalEtudiants > 0 ? (totalNonComplets / totalEtudiants) * 100 : 0
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', padding: '20px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
+      <Navbar session={session} />
+      <div style={{ padding: '1.5rem' }}>
         <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '600', marginBottom: '32px' }}>Tableau de bord</h1>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>

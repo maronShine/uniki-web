@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { QRCodeSVG } from 'qrcode.react'
 
 export default function Etudiants() {
   const [etudiants, setEtudiants] = useState([])
@@ -8,14 +9,23 @@ export default function Etudiants() {
   const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilter, setActiveFilter] = useState('Tous')
+  const [printId, setPrintId] = useState('')
+  const [isPrinting, setIsPrinting] = useState(false)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     fetchEtudiants()
+    fetchUser()
   }, [])
 
   useEffect(() => {
     filterEtudiants()
   }, [etudiants, searchTerm, activeFilter])
+
+  const fetchUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+  }
 
   const fetchEtudiants = async () => {
     try {
@@ -106,8 +116,62 @@ export default function Etudiants() {
     )
   }
 
-  const handlePrint = () => {
-    window.print()
+  const handlePrint = async () => {
+    if (!user) {
+      setError('Vous devez être connecté pour imprimer')
+      return
+    }
+
+    setIsPrinting(true)
+    try {
+      // a) Générer un ID unique
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const random = String(Math.floor(Math.random() * 10000)).padStart(4, '0')
+      const generatedPrintId = `UNIKI-${year}-${month}-${random}`
+      setPrintId(generatedPrintId)
+
+      // b) Créer le snapshot de la liste visible
+      const snapshot = filteredEtudiants.map(etudiant => ({
+        nom: etudiant.etudiants?.nom || '',
+        prenom: etudiant.etudiants?.prenom || '',
+        numero_etudiant: etudiant.etudiants?.numero_etudiant || '',
+        statut: etudiant.statut || '',
+        filiere: etudiant.etudiants?.filiere || '',
+        tranche: etudiant.tranches ? `Tranche ${etudiant.tranches.numero_tranche}` : '',
+        montant_total: etudiant.montant_total || 0
+      }))
+
+      // c) Enregistrer dans Supabase
+      const { error: logError } = await supabase
+        .from('print_logs')
+        .insert({
+          id: generatedPrintId,
+          printed_by: user.email,
+          filtre_statut: ['Payé', 'Partiel', 'En attente'].includes(activeFilter) ? activeFilter : null,
+          filtre_tranche: ['Tranche 1', 'Tranche 2', 'Tranche 3'].includes(activeFilter) ? activeFilter : null,
+          recherche: searchTerm || null,
+          nombre_etudiants: filteredEtudiants.length,
+          liste_snapshot: snapshot
+        })
+
+      if (logError) {
+        console.error('Error logging print:', logError)
+        throw logError
+      }
+
+      // d) Déclencher l'impression après un court délai pour que le QR code s'affiche
+      setTimeout(() => {
+        window.print()
+        setIsPrinting(false)
+      }, 500)
+
+    } catch (error) {
+      console.error('Error during print:', error)
+      setError('Erreur lors de la préparation de l\'impression')
+      setIsPrinting(false)
+    }
   }
 
   if (loading) {
@@ -155,21 +219,26 @@ export default function Etudiants() {
             <button
               onClick={handlePrint}
               className="btn-print"
+              disabled={isPrinting}
               style={{
-                backgroundColor: '#0ea5e9',
+                backgroundColor: isPrinting ? '#374151' : '#0ea5e9',
                 color: 'white',
                 border: 'none',
                 padding: '12px 20px',
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontWeight: '500',
-                cursor: 'pointer',
+                cursor: isPrinting ? 'not-allowed' : 'pointer',
                 transition: 'background-color 0.2s'
               }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#0284c7'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#0ea5e9'}
+              onMouseOver={(e) => {
+                if (!isPrinting) e.target.style.backgroundColor = '#0284c7'
+              }}
+              onMouseOut={(e) => {
+                if (!isPrinting) e.target.style.backgroundColor = '#0ea5e9'
+              }}
             >
-              Imprimer la liste
+              {isPrinting ? 'Préparation...' : 'Imprimer la liste'}
             </button>
           </div>
           
@@ -274,6 +343,75 @@ export default function Etudiants() {
             </div>
           )}
         </div>
+
+        {/* Zone QR code et informations d'impression (visible uniquement à l'impression) */}
+        {printId && (
+          <div className="qr-print-section" style={{
+            display: 'none',
+            '@media print': {
+              display: 'block'
+            }
+          }}>
+            {/* En-tête d'impression */}
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '20px',
+              pageBreakBefore: 'always'
+            }}>
+              <h1 style={{
+                color: '#1f2937',
+                fontSize: '20px',
+                fontWeight: '600',
+                marginBottom: '8px'
+              }}>
+                UNIVERSITÉ DE KINDU — Liste officielle des frais académiques
+              </h1>
+              <div style={{ color: '#6b7280', fontSize: '14px' }}>
+                Imprimé le {new Date().toLocaleString('fr-FR')} • {filteredEtudiants.length} étudiants
+              </div>
+              {(activeFilter !== 'Tous' || searchTerm) && (
+                <div style={{ color: '#6b7280', fontSize: '12px', marginTop: '4px' }}>
+                  Filtres: {activeFilter !== 'Tous' ? activeFilter : ''} {searchTerm ? `• Recherche: "${searchTerm}"` : ''}
+                </div>
+              )}
+            </div>
+
+            {/* QR code et numéro de série */}
+            <div style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              textAlign: 'center',
+              backgroundColor: 'white',
+              padding: '10px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px'
+            }}>
+              <QRCodeSVG
+                value={`https://uniki-web.vercel.app/verify/${printId}`}
+                size={100}
+                level="H"
+                includeMargin={true}
+              />
+              <div style={{
+                fontSize: '10px',
+                color: '#374151',
+                marginTop: '8px',
+                fontWeight: '600'
+              }}>
+                {printId}
+              </div>
+              <div style={{
+                fontSize: '8px',
+                color: '#6b7280',
+                marginTop: '4px',
+                maxWidth: '120px'
+              }}>
+                Vérifiez ce document sur uniki-web.vercel.app/verify/{printId}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

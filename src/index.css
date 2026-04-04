@@ -44,8 +44,15 @@ body {
     box-shadow: none; 
     border: 1px solid #ccc; 
   }
+  .qr-print-section {
+    display: block !important;
+  }
   body { 
-    background: white; 
-    color: black; 
+    background: white !important; 
+    color: black !important; 
+  }
+  /* S'assurer que le QR code est visible à l'impression */
+  .qr-print-section div[style*="position: fixed"] {
+    position: fixed !important;
   }
 }

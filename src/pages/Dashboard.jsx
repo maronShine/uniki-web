@@ -1,21 +1,96 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import Navbar from '../components/Navbar'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 export default function Dashboard() {
   const [session, setSession] = useState(null)
   const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [chartData, setChartData] = useState({
+    paymentStatus: [],
+    filiereData: [],
+    trancheData: []
+  })
 
   useEffect(() => {
     fetchSession()
     fetchDashboardData()
+    fetchChartData()
   }, [])
 
   const fetchSession = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     setSession(session)
+  }
+
+  const fetchChartData = async () => {
+    try {
+      // Graphique 1: Statuts de paiement
+      const { data: statusData, error: statusError } = await supabase
+        .from('statuts_tranches')
+        .select('statut')
+
+      // Graphique 2: Étudiants par filière
+      const { data: filiereData, error: filiereError } = await supabase
+        .from('etudiants')
+        .select('filiere')
+
+      // Graphique 3: Paiements par tranche
+      const { data: trancheData, error: trancheError } = await supabase
+        .from('statuts_tranches')
+        .select('montant_total, tranches(numero_tranche)')
+
+      if (statusError || filiereError || trancheError) {
+        console.error('Error fetching chart data:', { statusError, filiereError, trancheError })
+        return
+      }
+
+      // Traiter les données pour le graphique 1
+      const statusCounts = statusData?.reduce((acc, item) => {
+        acc[item.statut] = (acc[item.statut] || 0) + 1
+        return acc
+      }, {})
+
+      const paymentStatusData = [
+        { name: 'Payé', value: statusCounts['Payé'] || 0, color: '#10b981' },
+        { name: 'Partiel', value: statusCounts['Partiel'] || 0, color: '#f59e0b' },
+        { name: 'En attente', value: statusCounts['En attente'] || 0, color: '#ef4444' }
+      ]
+
+      // Traiter les données pour le graphique 2
+      const filiereCounts = filiereData?.reduce((acc, item) => {
+        acc[item.filiere] = (acc[item.filiere] || 0) + 1
+        return acc
+      }, {})
+
+      const filiereChartData = Object.entries(filiereCounts).map(([filiere, count]) => ({
+        filiere,
+        count
+      }))
+
+      // Traiter les données pour le graphique 3
+      const trancheCounts = trancheData?.reduce((acc, item) => {
+        const trancheName = `Tranche ${item.tranches?.numero_tranche || 1}`
+        acc[trancheName] = (acc[trancheName] || 0) + (item.montant_total || 0)
+        return acc
+      }, {})
+
+      const trancheChartData = [
+        { name: 'Tranche 1', montant: trancheCounts['Tranche 1'] || 0 },
+        { name: 'Tranche 2', montant: trancheCounts['Tranche 2'] || 0 },
+        { name: 'Tranche 3', montant: trancheCounts['Tranche 3'] || 0 }
+      ]
+
+      setChartData({
+        paymentStatus: paymentStatusData,
+        filiereData: filiereChartData,
+        trancheData: trancheChartData
+      })
+    } catch (error) {
+      console.error('Error fetching chart data:', error)
+    }
   }
 
   const fetchDashboardData = async () => {
@@ -108,12 +183,93 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div style={{ backgroundColor: '#1e293b', padding: '32px', borderRadius: '12px', border: '1px solid #334155' }}>
-          <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '600', marginBottom: '16px' }}>Aperçu des paiements</h2>
-          <p style={{ color: '#94a3b8', lineHeight: '1.6' }}>
-            Bienvenue dans le système de suivi des frais académiques de l'Université de Kindu. 
-            Utilisez le menu de navigation pour accéder à la liste complète des étudiants et suivre les paiements en temps réel.
-          </p>
+        {/* Graphiques */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '20px' }}>
+          {/* Graphique 1: Taux de paiement par statut */}
+          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
+            <h3 style={{ color: '#f1f5f9', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Répartition des paiements</h3>
+            {chartData.paymentStatus.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={chartData.paymentStatus}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {chartData.paymentStatus.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                    labelStyle={{ color: '#f1f5f9' }}
+                  />
+                  <Legend 
+                    verticalAlign="middle" 
+                    align="right" 
+                    layout="vertical"
+                    wrapperStyle={{ color: '#f1f5f9', fontSize: '12px' }}
+                    formatter={(value, entry) => [`${value} (${((value / chartData.paymentStatus.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}%)`, entry.name]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '14px' }}>
+                En attente des données
+              </div>
+            )}
+          </div>
+
+          {/* Graphique 2: Étudiants par filière */}
+          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
+            <h3 style={{ color: '#f1f5f9', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Étudiants par filière</h3>
+            {chartData.filiereData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={chartData.filiereData} layout="horizontal">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis type="number" stroke="#64748b" fontSize="12px" />
+                  <YAxis dataKey="filiere" type="category" stroke="#64748b" fontSize="12px" width={80} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                    labelStyle={{ color: '#f1f5f9' }}
+                  />
+                  <Bar dataKey="count" fill="#0ea5e9" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '14px' }}>
+                En attente des données
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Graphique 3: Paiements par tranche */}
+        <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
+          <h3 style={{ color: '#f1f5f9', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Collecte par tranche</h3>
+          {chartData.trancheData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={chartData.trancheData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                <XAxis dataKey="name" stroke="#64748b" fontSize="12px" />
+                <YAxis stroke="#64748b" fontSize="12px" />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
+                  labelStyle={{ color: '#f1f5f9' }}
+                  formatter={(value) => [`$${value.toLocaleString()}`, 'Montant collecté']}
+                />
+                <Bar dataKey="montant" fill="#0ea5e9" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '14px' }}>
+              En attente des données
+            </div>
+          )}
         </div>
       </div>
     </div>

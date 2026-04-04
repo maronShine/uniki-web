@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import Navbar from '../components/Navbar'
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { useWindowWidth } from '../hooks/useWindowWidth'
 
 export default function Dashboard() {
+  const width = useWindowWidth()
+  const isMobile = width < 768
   const [session, setSession] = useState(null)
   const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -140,10 +143,15 @@ export default function Dashboard() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
       <Navbar session={session} />
-      <div style={{ padding: '1.5rem' }}>
-        <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '600', marginBottom: '32px' }}>Tableau de bord</h1>
+      <div style={{ padding: isMobile ? '1rem' : '1.5rem' }}>
+        <h1 style={{ color: 'white', fontSize: isMobile ? '24px' : '28px', fontWeight: '600', marginBottom: '32px' }}>Tableau de bord</h1>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', 
+          gap: isMobile ? '10px' : '20px', 
+          marginBottom: '32px' 
+        }}>
           {/* KPI 1: Total étudiants */}
           <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
             <div style={{ color: '#94a3b8', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Total étudiants</div>
@@ -184,7 +192,12 @@ export default function Dashboard() {
         </div>
 
         {/* Graphiques */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '20px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', 
+          gap: '20px', 
+          marginBottom: '20px' 
+        }}>
           {/* Graphique 1: Taux de paiement par statut */}
           <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
             <h3 style={{ color: '#f1f5f9', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Répartition des paiements</h3>

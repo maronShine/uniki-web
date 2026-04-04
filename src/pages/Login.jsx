@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useWindowWidth } from '../hooks/useWindowWidth'
 
 export default function Login() {
+  const width = useWindowWidth()
+  const isMobile = width < 768
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,8 +20,15 @@ export default function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div style={{ backgroundColor: '#1e293b', padding: '32px', borderRadius: '12px', width: '100%', maxWidth: '400px', border: '1px solid #334155' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '20px' : '40px' }}>
+      <div style={{ 
+        backgroundColor: '#1e293b', 
+        padding: isMobile ? '24px' : '32px', 
+        borderRadius: '12px', 
+        width: '100%', 
+        maxWidth: isMobile ? '100%' : '400px', 
+        border: '1px solid #334155' 
+      }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', backgroundColor: '#0ea5e9', borderRadius: '50%', marginBottom: '16px' }}>
             <span style={{ color: 'white', fontWeight: '700', fontSize: '20px' }}>UK</span>

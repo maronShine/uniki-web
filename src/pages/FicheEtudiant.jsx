@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import Navbar from '../components/Navbar'
+import { useWindowWidth } from '../hooks/useWindowWidth'
 
 export default function FicheEtudiant({ session }) {
   const { id } = useParams()
   const navigate = useNavigate()
+  const width = useWindowWidth()
+  const isMobile = width < 768
   const [etudiant, setEtudiant] = useState(null)
   const [paiements, setPaiements] = useState([])
   const [tranches, setTranches] = useState([])
@@ -111,7 +114,7 @@ export default function FicheEtudiant({ session }) {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
       <Navbar session={session} />
-      <div style={{ padding: '1.5rem' }}>
+      <div style={{ padding: isMobile ? '1rem' : '1.5rem' }}>
         {/* Bouton retour */}
         <button
           onClick={() => navigate('/etudiants')}
@@ -144,14 +147,21 @@ export default function FicheEtudiant({ session }) {
         {/* En-tête étudiant */}
         <div style={{ 
           backgroundColor: '#1e293b', 
-          padding: '32px', 
+          padding: isMobile ? '20px' : '32px', 
           borderRadius: '12px', 
           border: '1px solid #334155',
           marginBottom: '24px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: isMobile ? 'flex-start' : 'flex-start',
+            marginBottom: '24px',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '16px' : '0'
+          }}>
             <div>
-              <h1 style={{ color: 'white', fontSize: '24px', fontWeight: '600', marginBottom: '8px' }}>
+              <h1 style={{ color: 'white', fontSize: isMobile ? '20px' : '24px', fontWeight: '600', marginBottom: '8px' }}>
                 {etudiant?.nom} {etudiant?.prenom}
               </h1>
               <div style={{ color: '#94a3b8', fontSize: '16px', marginBottom: '4px' }}>

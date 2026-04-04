@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { QRCodeSVG } from 'qrcode.react'
 import Navbar from '../components/Navbar'
+import { useWindowWidth } from '../hooks/useWindowWidth'
 
 export default function Etudiants() {
   const navigate = useNavigate()
+  const width = useWindowWidth()
+  const isMobile = width < 768
   const [session, setSession] = useState(null)
   const [etudiants, setEtudiants] = useState([])
   const [filteredEtudiants, setFilteredEtudiants] = useState([])
@@ -224,12 +227,19 @@ export default function Etudiants() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
       <Navbar session={session} />
-      <div style={{ padding: '1.5rem' }}>
-        <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '600', marginBottom: '32px' }}>Liste des étudiants</h1>
+      <div style={{ padding: isMobile ? '1rem' : '1.5rem' }}>
+        <h1 style={{ color: 'white', fontSize: isMobile ? '24px' : '28px', fontWeight: '600', marginBottom: '32px' }}>Liste des étudiants</h1>
         
         {/* Carte de recherche et filtres */}
         <div className="search-card" style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: '20px',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '16px' : '16px'
+          }}>
             <input
               type="text"
               placeholder="Rechercher par nom, prénom ou numéro étudiant..."
@@ -237,7 +247,7 @@ export default function Etudiants() {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 flex: 1,
-                maxWidth: '400px',
+                maxWidth: isMobile ? '100%' : '400px',
                 padding: '12px 16px',
                 backgroundColor: '#0f172a',
                 border: '1px solid #374151',
@@ -245,7 +255,7 @@ export default function Etudiants() {
                 color: 'white',
                 fontSize: '14px',
                 outline: 'none',
-                marginRight: '16px'
+                marginRight: isMobile ? '0' : '16px'
               }}
             />
             <button
@@ -256,12 +266,13 @@ export default function Etudiants() {
                 backgroundColor: isPrinting ? '#374151' : '#0ea5e9',
                 color: 'white',
                 border: 'none',
-                padding: '12px 20px',
+                padding: isMobile ? '12px' : '12px 20px',
                 borderRadius: '8px',
                 fontSize: '14px',
                 fontWeight: '500',
                 cursor: isPrinting ? 'not-allowed' : 'pointer',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                minWidth: isMobile ? '48px' : 'auto'
               }}
               onMouseOver={(e) => {
                 if (!isPrinting) e.target.style.backgroundColor = '#0284c7'
@@ -270,12 +281,18 @@ export default function Etudiants() {
                 if (!isPrinting) e.target.style.backgroundColor = '#0ea5e9'
               }}
             >
-              {isPrinting ? 'Préparation...' : 'Imprimer la liste'}
+              {isMobile ? '🖨️' : (isPrinting ? 'Préparation...' : 'Imprimer la liste')}
             </button>
           </div>
           
           {/* Pills de filtre */}
-          <div className="filter-pills" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <div className="filter-pills" style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            flexWrap: isMobile ? 'nowrap' : 'wrap',
+            overflowX: isMobile ? 'auto' : 'visible',
+            paddingBottom: isMobile ? '8px' : '0'
+          }}>
             {['Tous', 'Payé', 'Partiel', 'En attente', 'Tranche 1', 'Tranche 2', 'Tranche 3'].map((filter) => (
               <button
                 key={filter}

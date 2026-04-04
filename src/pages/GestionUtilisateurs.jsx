@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import Navbar from '../components/Navbar'
 import { useRole } from '../hooks/useRole'
+import { useWindowWidth } from '../hooks/useWindowWidth'
 
 export default function GestionUtilisateurs({ session }) {
   const { role, loading: roleLoading } = useRole(session)
+  const width = useWindowWidth()
+  const isMobile = width < 768
   const [utilisateurs, setUtilisateurs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -169,15 +172,15 @@ export default function GestionUtilisateurs({ session }) {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
       <Navbar session={session} />
-      <div style={{ padding: '1.5rem' }}>
-        <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '600', marginBottom: '32px' }}>
+      <div style={{ padding: isMobile ? '1rem' : '1.5rem' }}>
+        <h1 style={{ color: 'white', fontSize: isMobile ? '24px' : '28px', fontWeight: '600', marginBottom: '32px' }}>
           Gestion des utilisateurs
         </h1>
         
         {/* Formulaire d'invitation */}
         <div style={{ 
           backgroundColor: '#1e293b', 
-          padding: '24px', 
+          padding: isMobile ? '20px' : '24px', 
           borderRadius: '12px', 
           border: '1px solid #334155',
           marginBottom: '24px'
@@ -186,8 +189,14 @@ export default function GestionUtilisateurs({ session }) {
             Inviter un nouvel utilisateur
           </h2>
           
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '250px' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px', 
+            alignItems: isMobile ? 'flex-end' : 'flex-end', 
+            flexWrap: 'wrap',
+            flexDirection: isMobile ? 'column' : 'row'
+          }}>
+            <div style={{ flex: 1, minWidth: isMobile ? '100%' : '250px' }}>
               <label style={{ color: '#94a3b8', fontSize: '14px', fontWeight: '500', marginBottom: '6px', display: 'block' }}>
                 Email
               </label>
@@ -209,7 +218,7 @@ export default function GestionUtilisateurs({ session }) {
               />
             </div>
             
-            <div style={{ minWidth: '150px' }}>
+            <div style={{ minWidth: isMobile ? '100%' : '150px' }}>
               <label style={{ color: '#94a3b8', fontSize: '14px', fontWeight: '500', marginBottom: '6px', display: 'block' }}>
                 Rôle
               </label>
@@ -245,7 +254,8 @@ export default function GestionUtilisateurs({ session }) {
                 fontSize: '14px',
                 fontWeight: '500',
                 cursor: 'pointer',
-                transition: 'background-color 0.2s'
+                transition: 'background-color 0.2s',
+                width: isMobile ? '100%' : 'auto'
               }}
               onMouseOver={(e) => e.target.style.backgroundColor = '#0284c7'}
               onMouseOut={(e) => e.target.style.backgroundColor = '#0ea5e9'}

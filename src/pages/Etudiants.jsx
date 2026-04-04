@@ -21,6 +21,10 @@ export default function Etudiants() {
     fetchEtudiants()
   }, [])
 
+  useEffect(() => {
+    filterEtudiants()
+  }, [etudiants, searchTerm, activeFilter])
+
   const fetchSession = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     setSession(session)
@@ -61,25 +65,15 @@ export default function Etudiants() {
   }
 
   const filterEtudiants = () => {
-    let filtered = [...etudiants]
-
-    // Filtrage par statut/tranche
-    if (activeFilter !== 'Tous') {
-      if (['Payé', 'Partiel', 'En attente'].includes(activeFilter)) {
-        filtered = filtered.filter(etudiant => 
-          etudiant.statuts_tranches?.some(tranche => tranche.statut === activeFilter)
-        )
-      } else if (['Tranche 1', 'Tranche 2', 'Tranche 3'].includes(activeFilter)) {
-        const trancheNumber = activeFilter.split(' ')[1]
-        filtered = filtered.filter(etudiant => 
-          etudiant.statuts_tranches?.some(tranche => 
-            tranche.tranches?.numero_tranche === parseInt(trancheNumber)
-          )
-        )
-      }
+    // Si aucun filtre actif → retourner tous les etudiants
+    if (activeFilter === 'Tous' && !searchTerm) {
+      setFilteredEtudiants(etudiants)
+      return
     }
 
-    // Filtrage par recherche
+    let filtered = [...etudiants]
+
+    // Filtre recherche : etudiant.nom, etudiant.prenom, etudiant.numero_etudiant
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(etudiant => {
@@ -88,6 +82,21 @@ export default function Etudiants() {
         const numeroEtudiant = etudiant.numero_etudiant?.toLowerCase() || ''
         return nom.includes(term) || prenom.includes(term) || numeroEtudiant.includes(term)
       })
+    }
+
+    // Filtre statut : etudiant.statuts_tranches?.[0]?.statut
+    if (activeFilter !== 'Tous' && ['Payé', 'Partiel', 'En attente'].includes(activeFilter)) {
+      filtered = filtered.filter(etudiant => 
+        etudiant.statuts_tranches?.[0]?.statut === activeFilter
+      )
+    }
+
+    // Filtre tranche : etudiant.statuts_tranches?.[0]?.tranches?.numero_tranche
+    if (activeFilter !== 'Tous' && ['Tranche 1', 'Tranche 2', 'Tranche 3'].includes(activeFilter)) {
+      const trancheNumber = parseInt(activeFilter.split(' ')[1])
+      filtered = filtered.filter(etudiant => 
+        etudiant.statuts_tranches?.[0]?.tranches?.numero_tranche === trancheNumber
+      )
     }
 
     setFilteredEtudiants(filtered)

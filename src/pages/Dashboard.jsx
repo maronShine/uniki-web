@@ -141,10 +141,10 @@ export default function Dashboard() {
   const pourcentageNonComplets = totalEtudiants > 0 ? (totalNonComplets / totalEtudiants) * 100 : 0
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F4F6F9' }}>
       <Navbar session={session} />
       <div style={{ padding: isMobile ? '1rem' : '1.5rem' }}>
-        <h1 style={{ color: 'white', fontSize: isMobile ? '24px' : '28px', fontWeight: '600', marginBottom: '32px' }}>Tableau de bord</h1>
+        <h1 style={{ color: '#1C2B3A', fontSize: isMobile ? '24px' : '28px', fontWeight: '600', marginBottom: '32px' }}>Tableau de bord</h1>
         
         <div style={{ 
           display: 'grid', 
@@ -153,41 +153,53 @@ export default function Dashboard() {
           marginBottom: '32px' 
         }}>
           {/* KPI 1: Total étudiants */}
-          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <div style={{ color: '#94a3b8', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Total étudiants</div>
-            <div style={{ color: 'white', fontSize: '32px', fontWeight: '700' }}>{totalEtudiants.toLocaleString()}</div>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '10px', border: '0.5px solid #DDE3EC' }}>
+            <div style={{ color: '#6B7A90', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Total étudiants</div>
+            <div style={{ color: '#1C2B3A', fontSize: '32px', fontWeight: '700' }}>{totalEtudiants.toLocaleString()}</div>
           </div>
 
           {/* KPI 2: Total collecté avec barre de progression */}
-          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <div style={{ color: '#94a3b8', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Total collecté</div>
-            <div style={{ color: 'white', fontSize: '32px', fontWeight: '700', marginBottom: '12px' }}>${totalCollecte.toLocaleString()}</div>
-            <div style={{ backgroundColor: '#374151', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ backgroundColor: '#0ea5e9', height: '100%', width: `${Math.min(pourcentageCollecte, 100)}%`, transition: 'width 0.3s ease' }}></div>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '10px', border: '0.5px solid #DDE3EC' }}>
+            <div style={{ color: '#6B7A90', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Total collecté</div>
+            <div style={{ color: '#1C2B3A', fontSize: '32px', fontWeight: '700', marginBottom: '12px' }}>${totalCollecte.toLocaleString()}</div>
+            <div style={{ 
+              width: '100%', 
+              height: '8px', 
+              backgroundColor: '#EEF1F6', 
+              borderRadius: '4px', 
+              overflow: 'hidden' 
+            }}>
+              <div style={{ 
+                width: `${Math.min(pourcentageCollecte, 100)}%`, 
+                height: '100%', 
+                backgroundColor: '#C8860A', 
+                borderRadius: '4px',
+                transition: 'width 0.3s ease'
+              }}></div>
             </div>
-            <div style={{ color: '#94a3b8', fontSize: '12px', marginTop: '6px' }}>
-              ${totalCollecte.toLocaleString()} / ${totalAttendu.toLocaleString()} ({pourcentageCollecte.toFixed(1)}%)
+            <div style={{ color: '#6B7A90', fontSize: '12px', marginTop: '8px' }}>
+              {pourcentageCollecte.toFixed(1)}% de l'objectif
             </div>
           </div>
 
           {/* KPI 3: Paiements complets */}
-          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '10px', border: '0.5px solid #DDE3EC' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-              <div style={{ width: '8px', height: '8px', backgroundColor: '#10b981', borderRadius: '50%', marginRight: '8px' }}></div>
-              <div style={{ color: '#94a3b8', fontSize: '14px', fontWeight: '500' }}>Paiements complets</div>
+              <div style={{ width: '8px', height: '8px', backgroundColor: '#2E7D50', borderRadius: '50%', marginRight: '8px' }}></div>
+              <div style={{ color: '#6B7A90', fontSize: '14px', fontWeight: '500' }}>Paiements complets</div>
             </div>
-            <div style={{ color: 'white', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>{paiementsComplets.toLocaleString()}</div>
-            <div style={{ color: '#10b981', fontSize: '14px', fontWeight: '500' }}>{pourcentageComplets.toFixed(1)}%</div>
+            <div style={{ color: '#1C2B3A', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>{paiementsComplets.toLocaleString()}</div>
+            <div style={{ color: '#2E7D50', fontSize: '14px', fontWeight: '500' }}>{pourcentageComplets.toFixed(1)}%</div>
           </div>
 
           {/* KPI 4: En attente / Partiels */}
-          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '10px', border: '0.5px solid #DDE3EC' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-              <div style={{ width: '8px', height: '8px', backgroundColor: '#ef4444', borderRadius: '50%', marginRight: '8px' }}></div>
-              <div style={{ color: '#94a3b8', fontSize: '14px', fontWeight: '500' }}>En attente / Partiels</div>
+              <div style={{ width: '8px', height: '8px', backgroundColor: '#8B1A1A', borderRadius: '50%', marginRight: '8px' }}></div>
+              <div style={{ color: '#6B7A90', fontSize: '14px', fontWeight: '500' }}>En attente / Partiels</div>
             </div>
-            <div style={{ color: 'white', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>{totalNonComplets.toLocaleString()}</div>
-            <div style={{ color: '#ef4444', fontSize: '14px', fontWeight: '500' }}>{pourcentageNonComplets.toFixed(1)}%</div>
+            <div style={{ color: '#1C2B3A', fontSize: '32px', fontWeight: '700', marginBottom: '8px' }}>{totalNonComplets.toLocaleString()}</div>
+            <div style={{ color: '#8B1A1A', fontSize: '14px', fontWeight: '500' }}>{pourcentageNonComplets.toFixed(1)}%</div>
           </div>
         </div>
 
@@ -199,8 +211,8 @@ export default function Dashboard() {
           marginBottom: '20px' 
         }}>
           {/* Graphique 1: Taux de paiement par statut */}
-          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <h3 style={{ color: '#f1f5f9', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Répartition des paiements</h3>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '10px', border: '0.5px solid #DDE3EC' }}>
+            <h3 style={{ color: '#1C2B3A', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Répartition des paiements</h3>
             {chartData.paymentStatus.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
@@ -208,53 +220,40 @@ export default function Dashboard() {
                     data={chartData.paymentStatus}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
                     outerRadius={80}
-                    paddingAngle={2}
+                    fill="#8884d8"
                     dataKey="value"
                   >
-                    {chartData.paymentStatus.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
+                    <Cell fill="#C8860A" />
+                    <Cell fill="#FFF4E0" />
+                    <Cell fill="#FDECEA" />
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
-                    labelStyle={{ color: '#f1f5f9' }}
-                  />
-                  <Legend 
-                    verticalAlign="middle" 
-                    align="right" 
-                    layout="vertical"
-                    wrapperStyle={{ color: '#f1f5f9', fontSize: '12px' }}
-                    formatter={(value, entry) => [`${value} (${((value / chartData.paymentStatus.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}%)`, entry.name]}
-                  />
+                  <Tooltip formatter={(value, name) => [value, name]} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '14px' }}>
-                En attente des données
+              <div style={{ textAlign: 'center', color: '#6B7A90', padding: '40px' }}>
+                Aucune donnée disponible
               </div>
             )}
           </div>
 
           {/* Graphique 2: Étudiants par filière */}
-          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <h3 style={{ color: '#f1f5f9', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Étudiants par filière</h3>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '10px', border: '0.5px solid #DDE3EC' }}>
+            <h3 style={{ color: '#1C2B3A', fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Étudiants par filière</h3>
             {chartData.filiereData.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={chartData.filiereData} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                  <XAxis type="number" stroke="#64748b" fontSize="12px" />
-                  <YAxis dataKey="filiere" type="category" stroke="#64748b" fontSize="12px" width={80} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
-                    labelStyle={{ color: '#f1f5f9' }}
-                  />
-                  <Bar dataKey="count" fill="#0ea5e9" radius={[0, 4, 4, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#EEF1F6" />
+                  <XAxis dataKey="filiere" stroke="#6B7A90" />
+                  <YAxis stroke="#6B7A90" />
+                  <Tooltip />
+                  <Bar dataKey="nombre" fill="#C8860A" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div style={{ height: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '14px' }}>
+              <div style={{ textAlign: 'center', color: '#6B7A90', padding: '40px' }}>
+                Aucune donnée disponible
                 En attente des données
               </div>
             )}

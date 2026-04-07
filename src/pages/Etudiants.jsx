@@ -111,29 +111,14 @@ export default function Etudiants() {
   }
 
   const getStatusBadge = (statut) => {
-    if (!statut || statut === 'Non configuré') {
-      return (
-        <span style={{
-          backgroundColor: '#374151',
-          color: '#d1d5db',
-          padding: '4px 12px',
-          borderRadius: '16px',
-          fontSize: '12px',
-          fontWeight: '500',
-          display: 'inline-block'
-        }}>
-          Non configuré
-        </span>
-      )
+    const statusConfig = {
+      'Payé': { bg: '#E8F5EE', color: '#1A6B3C', label: 'Payé' },
+      'Partiel': { bg: '#FFF4E0', color: '#8A5A00', label: 'Partiel' },
+      'En attente': { bg: '#FDECEA', color: '#8B1A1A', label: 'En attente' },
+      'Non configuré': { bg: '#EEF1F6', color: '#6B7A90', label: 'Non configuré' }
     }
     
-    const statusConfig = {
-      'Payé': { bg: '#d1fae5', color: '#065f46', border: '#10b981' },
-      'Partiel': { bg: '#fef3c7', color: '#92400e', border: '#f59e0b' },
-      'En attente': { bg: '#fee2e2', color: '#991b1b', border: '#ef4444' }
-    }
-
-    const config = statusConfig[statut] || statusConfig['En attente']
+    const config = statusConfig[statut] || statusConfig['Non configuré']
     
     return (
       <span style={{
@@ -145,7 +130,7 @@ export default function Etudiants() {
         fontWeight: '500',
         display: 'inline-block'
       }}>
-        {statut}
+        {config.label}
       </span>
     )
   }
@@ -239,13 +224,13 @@ export default function Etudiants() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F4F6F9' }}>
       <Navbar session={session} />
       <div style={{ padding: isMobile ? '1rem' : '1.5rem' }}>
-        <h1 style={{ color: 'white', fontSize: isMobile ? '24px' : '28px', fontWeight: '600', marginBottom: '32px' }}>Liste des étudiants</h1>
+        <h1 style={{ color: '#1C2B3A', fontSize: isMobile ? '24px' : '28px', fontWeight: '600', marginBottom: '32px' }}>Liste des étudiants</h1>
         
         {/* Carte de recherche et filtres */}
-        <div className="search-card" style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '12px', border: '1px solid #334155', marginBottom: '24px' }}>
+        <div className="search-card" style={{ backgroundColor: '#FFFFFF', padding: '24px', borderRadius: '10px', border: '0.5px solid #DDE3EC', marginBottom: '24px' }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -263,10 +248,10 @@ export default function Etudiants() {
                 flex: 1,
                 maxWidth: isMobile ? '100%' : '400px',
                 padding: '12px 16px',
-                backgroundColor: '#0f172a',
-                border: '1px solid #374151',
+                backgroundColor: '#F8FAFB',
+                border: '1px solid #DDE3EC',
                 borderRadius: '8px',
-                color: 'white',
+                color: '#1C2B3A',
                 fontSize: '14px',
                 outline: 'none',
                 marginRight: isMobile ? '0' : '16px'
@@ -277,11 +262,11 @@ export default function Etudiants() {
               className="btn-print"
               disabled={isPrinting}
               style={{
-                backgroundColor: isPrinting ? '#374151' : '#0ea5e9',
+                backgroundColor: isPrinting ? '#DDE3EC' : '#C8860A',
                 color: 'white',
                 border: 'none',
                 padding: isMobile ? '12px' : '12px 20px',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 fontSize: '14px',
                 fontWeight: '500',
                 cursor: isPrinting ? 'not-allowed' : 'pointer',
@@ -289,10 +274,10 @@ export default function Etudiants() {
                 minWidth: isMobile ? '48px' : 'auto'
               }}
               onMouseOver={(e) => {
-                if (!isPrinting) e.target.style.backgroundColor = '#0284c7'
+                if (!isPrinting) e.target.style.backgroundColor = '#A06D08'
               }}
               onMouseOut={(e) => {
-                if (!isPrinting) e.target.style.backgroundColor = '#0ea5e9'
+                if (!isPrinting) e.target.style.backgroundColor = '#C8860A'
               }}
             >
               {isMobile ? '🖨️' : (isPrinting ? 'Préparation...' : 'Imprimer la liste')}
@@ -312,21 +297,28 @@ export default function Etudiants() {
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
                 style={{
-                  backgroundColor: activeFilter === filter ? '#0ea5e9' : '#374151',
-                  color: 'white',
-                  border: 'none',
+                  backgroundColor: activeFilter === filter ? '#C8860A' : '#F8FAFB',
+                  color: activeFilter === filter ? 'white' : '#6B7A90',
+                  border: activeFilter === filter ? '1px solid #C8860A' : '1px solid #DDE3EC',
                   padding: '8px 16px',
                   borderRadius: '20px',
                   fontSize: '14px',
                   fontWeight: '500',
                   cursor: 'pointer',
-                  transition: 'background-color 0.2s'
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap'
                 }}
                 onMouseOver={(e) => {
-                  if (activeFilter !== filter) e.target.style.backgroundColor = '#4b5563'
+                  if (activeFilter !== filter) {
+                    e.target.style.backgroundColor = '#EEF1F6'
+                    e.target.style.borderColor = '#EEF1F6'
+                  }
                 }}
                 onMouseOut={(e) => {
-                  if (activeFilter !== filter) e.target.style.backgroundColor = '#374151'
+                  if (activeFilter !== filter) {
+                    e.target.style.backgroundColor = '#F8FAFB'
+                    e.target.style.borderColor = '#DDE3EC'
+                  }
                 }}
               >
                 {filter}
@@ -335,13 +327,33 @@ export default function Etudiants() {
           </div>
         </div>
 
+        {/* Messages */}
+        {error && (
+          <div style={{ 
+            backgroundColor: '#FDECEA', 
+            color: '#8B1A1A', 
+            padding: '12px 16px', 
+            borderRadius: '8px', 
+            marginBottom: '16px',
+            fontSize: '14px',
+            border: '1px solid #FDECEA'
+          }}>
+            {error}
+          </div>
+        )}
+
+        {/* Compteur de résultats */}
+        <div style={{ color: '#6B7A90', fontSize: '14px', marginBottom: '16px' }}>
+          {filteredEtudiants.length} étudiant{filteredEtudiants.length !== 1 ? 's' : ''} trouvé{filteredEtudiants.length !== 1 ? 's' : ''}
+        </div>
+
         {/* Carte du tableau */}
-        <div className="table-card" style={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid #334155', overflow: 'hidden' }}>
+        <div className="table-card" style={{ backgroundColor: '#FFFFFF', borderRadius: '10px', border: '0.5px solid #DDE3EC', overflow: 'hidden' }}>
           {/* Compteur de résultats */}
-          <div style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ color: 'white', fontSize: '18px', fontWeight: '600', margin: 0 }}>Résultats</h2>
-            <div style={{ color: '#94a3b8', fontSize: '14px' }}>
-              {filteredEtudiants.length} résultat{filteredEtudiants.length !== 1 ? 's' : ''} — mis à jour automatiquement
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid #DDE3EC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 style={{ color: '#1C2B3A', fontSize: '18px', fontWeight: '600', margin: 0 }}>Résultats</h2>
+            <div style={{ color: '#6B7A90', fontSize: '14px' }}>
+              {filteredEtudiants.length} étudiant{filteredEtudiants.length !== 1 ? 's' : ''} trouvé{filteredEtudiants.length !== 1 ? 's' : ''}
             </div>
           </div>
 
@@ -349,63 +361,76 @@ export default function Etudiants() {
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ backgroundColor: '#374151' }}>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>NOM</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>PRÉNOM</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>N° ÉTUDIANT</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>FILIÈRE</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>TRANCHE</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>MONTANT DÛ</th>
-                  <th style={{ padding: '16px', textAlign: 'left', color: '#94a3b8', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>STATUT</th>
+                <tr style={{ backgroundColor: '#F8FAFB' }}>
+                  <th style={{ padding: '16px', textAlign: 'left', color: '#6B7A90', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>NOM</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: '#6B7A90', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>PRÉNOM</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: '#6B7A90', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>NUMÉRO</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: '#6B7A90', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>FILIÈRE</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: '#6B7A90', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>TRANCHE</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: '#6B7A90', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>RESTANT</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: '#6B7A90', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>STATUT</th>
+                  <th style={{ padding: '16px', textAlign: 'left', color: '#6B7A90', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredEtudiants.map((etudiant, index) => (
                   <tr 
-                    key={etudiant.id} 
+                    key={etudiant.id}
                     onClick={() => handleEtudiantClick(etudiant.id)}
-                    style={{
-                      borderBottom: '1px solid #334155',
+                    style={{ 
+                      borderBottom: '1px solid #F0F3F8',
                       cursor: 'pointer',
                       transition: 'background-color 0.2s'
                     }}
                     onMouseOver={(e) => {
-                      e.currentTarget.style.backgroundColor = '#374151'
+                      e.currentTarget.style.backgroundColor = '#F8FAFB'
                     }}
                     onMouseOut={(e) => {
                       e.currentTarget.style.backgroundColor = 'transparent'
                     }}
                   >
-                    <td style={{ padding: '16px', color: 'white', fontSize: '14px' }}>
-                      {etudiant.nom || '-'}
+                    <td style={{ padding: '16px', color: '#1C2B3A', fontSize: '14px' }}>{etudiant.nom}</td>
+                    <td style={{ padding: '16px', color: '#1C2B3A', fontSize: '14px' }}>{etudiant.prenom}</td>
+                    <td style={{ padding: '16px', color: '#1C2B3A', fontSize: '14px' }}>{etudiant.numero_etudiant}</td>
+                    <td style={{ padding: '16px', color: '#1C2B3A', fontSize: '14px' }}>{etudiant.filiere}</td>
+                    <td style={{ padding: '16px', color: '#1C2B3A', fontSize: '14px' }}>
+                      {etudiant.statuts_tranches?.[0]?.tranches?.numero_tranche || '-'}
                     </td>
-                    <td style={{ padding: '16px', color: 'white', fontSize: '14px' }}>
-                      {etudiant.prenom || '-'}
-                    </td>
-                    <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                      {etudiant.numero_etudiant || '-'}
-                    </td>
-                    <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                      {etudiant.filiere || '-'}
-                    </td>
-                    <td style={{ padding: '16px', color: '#94a3b8', fontSize: '14px' }}>
-                      {etudiant.statuts_tranches && etudiant.statuts_tranches.length > 0 
-                        ? `Tranche ${etudiant.statuts_tranches[0].tranches?.numero_tranche || 1}`
+                    <td style={{ padding: '16px', color: '#1C2B3A', fontSize: '14px' }}>
+                      {etudiant.statuts_tranches?.[0]?.montant_restant !== undefined 
+                        ? `${etudiant.statuts_tranches[0].montant_restant.toLocaleString()} $` 
                         : '-'
                       }
                     </td>
-                    <td style={{ padding: '16px', color: 'white', fontSize: '14px', fontWeight: '500' }}>
-                      ${etudiant.statuts_tranches && etudiant.statuts_tranches.length > 0
-                        ? (etudiant.statuts_tranches[0].montant_restant || 0).toLocaleString()
-                        : '0'
-                      }
+                    <td style={{ padding: '16px' }}>
+                      {getStatusBadge(etudiant.statuts_tranches?.[0]?.statut)}
                     </td>
                     <td style={{ padding: '16px' }}>
-                      {getStatusBadge(
-                        etudiant.statuts_tranches && etudiant.statuts_tranches.length > 0
-                          ? etudiant.statuts_tranches[0].statut
-                          : 'Non configuré'
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleEtudiantClick(etudiant.id)
+                        }}
+                        style={{
+                          backgroundColor: '#C8860A',
+                          color: 'white',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.backgroundColor = '#A06D08'
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.backgroundColor = '#C8860A'
+                        }}
+                      >
+                        Voir
+                      </button>
                     </td>
                   </tr>
                 ))}
